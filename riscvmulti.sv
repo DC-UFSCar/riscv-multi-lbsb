@@ -4,7 +4,8 @@ module riscvmulti (
     output [31:0] Address, 
     output [31:0] WriteData,
     output 	      MemWrite,
-    input  [31:0] ReadData); 
+    input  [31:0] ReadData, 
+    output logic  halt = 0); 
 
     logic [31:0] instr, PC = 0;
 
@@ -26,6 +27,7 @@ module riscvmulti (
     wire isLoad    =  (instr[6:0] == 7'b0000011); // rd <- mem[rs1+Iimm]
     wire isStore   =  (instr[6:0] == 7'b0100011); // mem[rs1+Simm] <- rs2
     wire isSYSTEM  =  (instr[6:0] == 7'b1110011); // special
+    wire isEBREAK  =  (isSYSTEM && (instr[14:12] == 3'b000));
 
     // The 5 immediate formats
     wire [31:0] Uimm={    instr[31],   instr[30:12], {12{1'b0}}};
@@ -155,9 +157,13 @@ module riscvmulti (
                     state <= EXECUTE;
                 end
                 EXECUTE: begin
-                    if (!isSYSTEM) begin
+                    if (!isSYSTEM)
                         PC <= PCNext;
-                    end
+                    else
+                        if (isEBREAK) begin
+                            PC <= PC; // halt
+                            halt <= 1;
+                        end
                     state <= isLoad  ? LOAD  : 
                              isStore ? STORE : 
                                        FETCH_INSTR;
@@ -173,4 +179,11 @@ module riscvmulti (
                 end
             endcase 
         end
+
+    always @(posedge clk) begin
+        if (halt) begin
+            $writememh("regs.out", RegisterBank);
+            #10 $finish();
+        end
+    end
 endmodule

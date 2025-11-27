@@ -1,17 +1,17 @@
 .text	# 0x00000000 
 .globl _start
 _start:
-	la s0, b
-	lw t0, -4(s0)
-	lw t1, (s0)
-loop:
-	add t2, t1, t0
-	add t0, zero, t1
-	add t1, zero, t2
-	addi s0, s0, 4
-	sw t2, (s0)
-	j loop
-	
-.data	# 0x00000100 
-a:	.word 0
-b:	.word 1
+	la a0, frame_buffer	# load address of frame buffer
+	lb t0, 0(a0)		# load first byte
+	lb t1, 1(a0)		# load second byte
+	lb t2, 2(a0)		# load third byte
+	lb t3, 3(a0)		# load fourth byte
+	sb t3, 0(a0)		# store fourth byte to first byte
+	sb t2, 1(a0)		# store third byte to second byte
+	sb t1, 2(a0)		# store second byte to third byte
+	sb t0, 3(a0)		# store first byte to fourth byte
+	ebreak				# end of program	
+
+.data	# 0x00000080 
+frame_buffer: # wrgb, cmy, white
+	.word 0xff300c03, 0x000f333c, 0xaaaaaaaa, 0x000f333c, 0xff300c03
