@@ -4,7 +4,8 @@ module riscvmulti (
     output [31:0] Address, 
     output [31:0] WriteData,
     output 	      MemWrite,
-    input  [31:0] ReadData, 
+    input  [31:0] ReadData,
+    output  [3:0] WriteMask, 
     output logic  halt = 0); 
 
     logic [31:0] instr, PC = 0;

@@ -1,7 +1,8 @@
 module mem (
   input  logic        clk, we,
   input  logic [31:0] a, wd,
-  output logic [31:0] rd);
+  output logic [31:0] rd,
+  input  logic  [3:0] wm);
 
   logic  [31:0] RAM [0:255];
 
